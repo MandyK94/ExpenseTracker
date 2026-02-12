@@ -9,169 +9,169 @@ The goal is not feature breadth, but engineering depth and correctness.
 2. In Scope (Functional Requirements)
    2.1 User Management & Security
 
-Users can register and authenticate using email/password.
+* Users can register and authenticate using email/password.
 
-Authentication is implemented using JWT-based stateless security.
+* Authentication is implemented using JWT-based stateless security.
 
-All protected APIs require a valid JWT.
+* All protected APIs require a valid JWT.
 
-Users can only access and modify their own data.
+* Users can only access and modify their own data.
 
 2.2 Core Domain Model
 
 The system manages the following entities:
 
-User
+* User
 
-Account
+* Account
 
-Transaction
+* Transaction
 
-Category
+* Category
 
 Each transaction:
 
-Belongs to a user
+* Belongs to a user
 
-Is associated with an account and category
+* Is associated with an account and category
 
-Contains amount, timestamp, description, and type (income/expense)
+* Contains amount, timestamp, description, and type (income/expense)
 
 Data is persisted in PostgreSQL using JPA/Hibernate.
 
 2.3 REST API
 
-CRUD APIs for:
+* CRUD APIs for:
 
-Transactions
+   * Transactions
 
-Categories
+   * Categories
 
-APIs follow REST conventions and return consistent JSON responses.
+* APIs follow REST conventions and return consistent JSON responses.
 
-Input validation is enforced using @Valid.
+* Input validation is enforced using @Valid.
 
-Transaction listing supports pagination.
+* Transaction listing supports pagination.
 
-All APIs are documented using OpenAPI/Swagger.
+* All APIs are documented using OpenAPI/Swagger.
 
 2.4 Frontend (React + TypeScript)
 
 The frontend provides:
 
-Login and registration screens
+* Login and registration screens
 
-Dashboard with recent transactions
+* Dashboard with recent transactions
 
-Transaction management (list, add, edit, delete)
+* Transaction management (list, add, edit, delete)
 
-Category management
+* Category management
 
-Expense analytics using charts (weekly/monthly trends)
+* Expense analytics using charts (weekly/monthly trends)
 
-Responsive, mobile-friendly UI
+* Responsive, mobile-friendly UI
 
-Proper loading states and error handling
+* Proper loading states and error handling
 
-JWT handling via a centralized HTTP client layer
+* JWT handling via a centralized HTTP client layer
 
 3. Non-Functional Requirements
    3.1 Observability & Production Readiness
 
-Backend exposes Spring Boot Actuator endpoints.
+* Backend exposes Spring Boot Actuator endpoints.
 
-Application metrics are collected via Micrometer.
+* Application metrics are collected via Micrometer.
 
-Metrics are scraped by Prometheus.
+* Metrics are scraped by Prometheus.
 
-Grafana dashboards visualize API latency, throughput, and error rates.
+* Grafana dashboards visualize API latency, throughput, and error rates.
 
-Health and readiness endpoints are enabled.
+* Health and readiness endpoints are enabled.
 
-Global exception handling with structured error responses.
+* Global exception handling with structured error responses.
 
 3.2 Containerization & Deployment
 
-Backend packaged as an executable JAR and containerized with Docker.
+* Backend packaged as an executable JAR and containerized with Docker.
 
-Frontend built as static assets and served via Nginx in Docker.
+* Frontend built as static assets and served via Nginx in Docker.
 
-docker-compose is provided for local development.
+* docker-compose is provided for local development.
 
-Application is deployed to AWS EC2.
+* Application is deployed to AWS EC2.
 
 3.3 CI/CD
 
-GitHub Actions pipeline automates:
+* GitHub Actions pipeline automates:
 
-Backend build and tests
+   * Backend build and tests
 
-Frontend build
+   * Frontend build
 
-Docker image creation
+   * Docker image creation
 
-Deployment to AWS EC2
+   * Deployment to AWS EC2
 
 3.4 Testing
 
-Repository layer tested using @DataJpaTest.
+* Repository layer tested using @DataJpaTest.
 
-Integration tests cover secured endpoints.
+* Integration tests cover secured endpoints.
 
-Target backend test coverage: ≥ 80%.
+* Target backend test coverage: ≥ 80%.
 
 4. Deliverables
 
-Public live demo URL
+* Public live demo URL
 
-Public Swagger/OpenAPI documentation
+* Public Swagger/OpenAPI documentation
 
-Grafana dashboard (read-only or documented access)
+* Grafana dashboard (read-only or documented access)
 
-GitHub repository with full CI/CD automation
+* GitHub repository with full CI/CD automation
 
-README including:
+* README including:
 
-Architecture diagram
+   * Architecture diagram
 
-Tech stack summary
+   * Tech stack summary
 
-Local setup instructions
+   * Local setup instructions
 
-Deployment overview
+   * Deployment overview
 
-Links to demo, Swagger, and monitoring
+   * Links to demo, Swagger, and monitoring
 
-Short screen recording demonstrating key flows
+* Short screen recording demonstrating key flows
 
 5. Explicitly Out of Scope
 
 The following are intentionally excluded to keep scope realistic:
 
-Multi-currency support
+* Multi-currency support
 
-Receipt uploads or OCR
+* Receipt uploads or OCR
 
-Bank integrations
+* Bank integrations
 
-Team or organization accounts
+* Team or organization accounts
 
-Advanced reporting or exports
+* Advanced reporting or exports
 
-Background jobs or schedulers
+* Background jobs or schedulers
 
-Event sourcing or audit trails
+* Event sourcing or audit trails
 
 6. Success Criteria
 
 The project is considered complete when:
 
-The application is publicly accessible
+* The application is publicly accessible
 
-CI/CD runs end-to-end without manual steps
+* CI/CD runs end-to-end without manual steps
 
-Metrics are visible in Grafana
+* Metrics are visible in Grafana
 
-APIs are fully documented
+* APIs are fully documented
 
-The system demonstrates production-ready engineering practices
+* The system demonstrates production-ready engineering practices
