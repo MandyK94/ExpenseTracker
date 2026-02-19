@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class AccountRepositoryTest {
+public class AccountRepositoryTest extends BaseRepositoryTest {
 
     @Autowired
     private AccountRepository accountRepository;

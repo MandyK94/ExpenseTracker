@@ -13,8 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class CategoryRepositoryTest {
+public class CategoryRepositoryTest extends BaseRepositoryTest {
 
     @Autowired
     private CategoryRepository categoryRepository;
