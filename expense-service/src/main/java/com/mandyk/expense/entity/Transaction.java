@@ -8,7 +8,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="transaction")
+@Table(name="transaction",
+    indexes = {
+        @Index(name="idx_transactions_user_date", columnList = "user_id"),
+        @Index(name="idx_transactions_account", columnList = "account_id")
+    })
 public class Transaction {
 
     @Id
@@ -23,7 +27,7 @@ public class Transaction {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name="transaction_date")
+    @Column(name="transaction_date", updatable = false)
     private LocalDateTime transactionDate;
 
     @Column(name="type")
@@ -42,7 +46,7 @@ public class Transaction {
     @Column(name="user_id")
     private Integer userId;
 
-    @Column(name="created_at")
+    @Column(name="created_at", nullable = false)
     private LocalDateTime createdAt;
 
     public Transaction() {}
@@ -54,6 +58,16 @@ public class Transaction {
         this.transactionDate = transactionDate;
         this.amount = amount;
         this.id = id;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if(this.transactionDate==null) {
+            this.transactionDate = LocalDateTime.now();
+        }
+        if(this.createdAt==null) {
+            this.createdAt=LocalDateTime.now();
+        }
     }
 
     public Integer getId() {

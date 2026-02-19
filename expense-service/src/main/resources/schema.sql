@@ -8,7 +8,7 @@ CREATE TABLE users (
 -- ACCOUNT TABLE
 CREATE TABLE account (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) UNIQUE NOT NULL,
+    name VARCHAR(100)  NOT NULL,
     user_id BIGINT NOT NULL,
     CONSTRAINT fk_account_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
