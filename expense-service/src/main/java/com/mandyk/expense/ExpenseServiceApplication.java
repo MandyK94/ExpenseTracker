@@ -1,4 +1,4 @@
-package com.mandyk.expense.ExpenseServiceApplication;
+package com.mandyk.expense;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
