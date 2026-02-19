@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: expense-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/expense_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate # dont recreate schema, validate it
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  sql:
+    init:
+      mode: never #ALWAYS run schema.sql on startup
+      schema-locations: classpath:schema.sql
+
+server:
+  port: 8080

@@ -13,6 +13,11 @@ target/
 .springBeans
 .sts4-cache
 
+# Docker
+.dockerignore
+.DS_Store
+postgres_data/
+
 ### IntelliJ IDEA ###
 .idea
 *.iws
