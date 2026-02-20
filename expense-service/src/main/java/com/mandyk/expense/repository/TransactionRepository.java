@@ -26,6 +26,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 
     Page<Transaction> findByUserIdAndAccountId(Integer userId, Integer accountId, Pageable pageable);
 
+    Page<Transaction> findByUserIdAndCategoryId(Integer userId, Integer categoryId, Pageable pageable);
+
     // Total income
     @Query("""
             select COALESCE(SUM(t.amount), 0)
@@ -43,6 +45,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
             AND t.transactionType='EXPENSE'
             """)
     BigDecimal getTotalExpenseByUserId(Integer userId);
+
 
 
     // Monthly aggregation
