@@ -9,6 +9,8 @@ import com.mandyk.expense.entity.TransactionType;
 import com.mandyk.expense.exception.ResourceNotFoundException;
 import com.mandyk.expense.service.JwtService;
 import com.mandyk.expense.service.TransactionService;
+import com.mandyk.expense.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,9 @@ public class TransactionControllerTest {
     @MockitoBean
     private JwtService jwtService;
 
+    @MockitoBean
+    private JwtUtil jwtUtil;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -63,7 +68,6 @@ public class TransactionControllerTest {
         request.setTransactionType(TransactionType.EXPENSE);
         request.setAccountId(1);
         request.setCategoryId(1);
-        request.setUserId(1);
 
         response = new TransactionResponseDTO();
         response.setId(1);
@@ -83,9 +87,10 @@ public class TransactionControllerTest {
 
     @Test
     void createTransactionShouldReturnCreatedTransaction() throws Exception {
-        when(transactionService.createTransaction(any(TransactionCreateRequestDTO.class)))
+        when(transactionService.createTransaction(any(TransactionCreateRequestDTO.class), eq(1)))
                 .thenReturn(response);
-
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
         mockMvc.perform(post("/api/transactions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -117,8 +122,9 @@ public class TransactionControllerTest {
         Page<TransactionResponseDTO> page = new PageImpl<>(List.of(response));
         when(transactionService.getTransactionsByUserId(eq(1), any(Pageable.class)))
                 .thenReturn(page);
-
-        mockMvc.perform(get("/api/transactions/user/1"))
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
+        mockMvc.perform(get("/api/transactions/user"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(1))
                 .andExpect(jsonPath("$.content[0].description").value("Grocery shopping"))
@@ -130,8 +136,9 @@ public class TransactionControllerTest {
         Page<TransactionResponseDTO> emptyPage = new PageImpl<>(List.of());
         when(transactionService.getTransactionsByUserId(eq(1), any(Pageable.class)))
                 .thenReturn(emptyPage);
-
-        mockMvc.perform(get("/api/transactions/user/1"))
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
+        mockMvc.perform(get("/api/transactions/user"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty())
                 .andExpect(jsonPath("$.totalElements").value(0));
@@ -142,8 +149,7 @@ public class TransactionControllerTest {
         Page<TransactionResponseDTO> page = new PageImpl<>(List.of(response));
         when(transactionService.getTransactionsByUserId(eq(1), any(Pageable.class)))
                 .thenReturn(page);
-
-        mockMvc.perform(get("/api/transactions/user/1")
+        mockMvc.perform(get("/api/transactions/user")
                         .param("page", "0")
                         .param("size", "5")
                         .param("sort", "createdAt,desc"))
@@ -155,8 +161,9 @@ public class TransactionControllerTest {
         Page<TransactionResponseDTO> page = new PageImpl<>(List.of(response));
         when(transactionService.getTransactionsByAccountId(eq(1), eq(1), any(Pageable.class)))
                 .thenReturn(page);
-
-        mockMvc.perform(get("/api/transactions/account/1/user/1"))
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
+        mockMvc.perform(get("/api/transactions/account/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].accountId").value(1))
                 .andExpect(jsonPath("$.totalElements").value(1));
@@ -167,8 +174,9 @@ public class TransactionControllerTest {
         Page<TransactionResponseDTO> emptyPage = new PageImpl<>(List.of());
         when(transactionService.getTransactionsByAccountId(eq(1), eq(1), any(Pageable.class)))
                 .thenReturn(emptyPage);
-
-        mockMvc.perform(get("/api/transactions/account/1/user/1"))
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
+        mockMvc.perform(get("/api/transactions/account/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
     }
@@ -178,8 +186,9 @@ public class TransactionControllerTest {
         Page<TransactionResponseDTO> page = new PageImpl<>(List.of(response));
         when(transactionService.getTransactionsByCategoryId(eq(1), eq(1), any(Pageable.class)))
                 .thenReturn(page);
-
-        mockMvc.perform(get("/api/transactions/category/1/user/1"))
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
+        mockMvc.perform(get("/api/transactions/category/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].categoryId").value(1))
                 .andExpect(jsonPath("$.totalElements").value(1));
@@ -190,8 +199,9 @@ public class TransactionControllerTest {
         Page<TransactionResponseDTO> emptyPage = new PageImpl<>(List.of());
         when(transactionService.getTransactionsByCategoryId(eq(1), eq(1), any(Pageable.class)))
                 .thenReturn(emptyPage);
-
-        mockMvc.perform(get("/api/transactions/category/1/user/1"))
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
+        mockMvc.perform(get("/api/transactions/category/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
     }
@@ -201,8 +211,9 @@ public class TransactionControllerTest {
     @Test
     void getTransactionShouldReturnSingleTransaction() throws Exception {
         when(transactionService.getTransaction(1, 1)).thenReturn(response);
-
-        mockMvc.perform(get("/api/transactions/1/user/1"))
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
+        mockMvc.perform(get("/api/transactions/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.description").value("Grocery shopping"));
@@ -221,8 +232,9 @@ public class TransactionControllerTest {
     void getBalanceShouldReturnBalanceDTO() throws Exception {
         when(transactionService.getAccountBalance(1, 1))
                 .thenReturn(new BigDecimal("500.00"));
-
-        mockMvc.perform(get("/api/transactions/1/user/1/balance"))
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
+        mockMvc.perform(get("/api/transactions/1/balance"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accountId").value(1))
                 .andExpect(jsonPath("$.balance").value(500.00));
@@ -232,8 +244,9 @@ public class TransactionControllerTest {
     void getBalanceShouldReturn404WhenAccountNotFound() throws Exception {
         when(transactionService.getAccountBalance(1, 99))
                 .thenThrow(new ResourceNotFoundException("Account not found"));
-
-        mockMvc.perform(get("/api/transactions/1/user/99/balance"))
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(99);
+        mockMvc.perform(get("/api/transactions/1/balance"))
                 .andExpect(status().isNotFound());
     }
 
@@ -241,7 +254,7 @@ public class TransactionControllerTest {
     void deleteTransactionShouldReturn200WhenSuccessful() throws Exception {
         doNothing().when(transactionService).deleteTransaction(1, 1);
 
-        mockMvc.perform(delete("/api/transactions/1/user/1"))
+        mockMvc.perform(delete("/api/transactions/1"))
                 .andExpect(status().isOk());
     }
 

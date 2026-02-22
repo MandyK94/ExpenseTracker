@@ -14,7 +14,6 @@ public class TransactionCreateRequestDTO {
 
     private Integer accountId;
     private Integer categoryId;
-    private Integer userId;
 
     public BigDecimal getAmount() {
         return amount;
@@ -64,11 +63,4 @@ public class TransactionCreateRequestDTO {
         this.categoryId = categoryId;
     }
 
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
 }

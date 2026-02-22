@@ -21,11 +21,11 @@ public class TransactionService {
     }
 
     // CREATE
-    public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO request) {
+    public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO request, Integer userId) {
 
         Transaction transaction = new Transaction();
 
-        transaction.setUserId(request.getUserId());
+        transaction.setUserId(userId);
         transaction.setAccountId(request.getAccountId());
         transaction.setCategoryId(request.getCategoryId());
         transaction.setAmount(request.getAmount());

@@ -24,6 +24,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
     private BCryptPasswordEncoder passwordEncoder;
 
     private User savedUser;
+    private String token;
 
     @BeforeEach
     void setUp() {
@@ -32,6 +33,8 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
         user.setEmail("sonia@email.com");
         user.setPassword(passwordEncoder.encode("password123"));
         savedUser = userRepository.save(user);
+        token = generateTestToken(savedUser.getId(), savedUser.getEmail());
+
     }
 
     // --- GET /api/users/me ---
@@ -39,7 +42,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     void getProfileShouldReturnUserProfile() throws Exception {
         mockMvc.perform(get("/api/users/me")
-                        .param("userId", savedUser.getId().toString()))
+                .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedUser.getId()))
                 .andExpect(jsonPath("$.name").value("Sonia"))
@@ -48,15 +51,26 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void getProfileShouldFailWhenUserNotFound() throws Exception {
+        String token = generateTestToken(999, "mandeep@email.com");
         mockMvc.perform(get("/api/users/me")
-                        .param("userId", "9999"))
+                        .header("Authorization", token))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void getProfileShouldReturn400WhenUserIdMissing() throws Exception {
+    void getProfileShouldReturn403WhenNoToken() throws Exception {
+
         mockMvc.perform(get("/api/users/me"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getProfileShouldReturn200WhenValidToken() throws Exception {
+
+        mockMvc.perform(get("/api/users/me")
+                        .header("Authorization", token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("sonia@email.com"));
     }
 
     // --- PUT /api/users/me ---
@@ -64,11 +78,11 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     void updateProfileShouldUpdateAndReturnUser() throws Exception {
         UpdateProfileDTO dto = new UpdateProfileDTO();
-        dto.setUserId(savedUser.getId());
         dto.setName("Sonia Updated");
         dto.setEmail("sonia.updated@email.com");
 
         mockMvc.perform(put("/api/users/me")
+                        .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -79,11 +93,11 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     void updateProfileShouldFailWhenUserNotFound() throws Exception {
         UpdateProfileDTO dto = new UpdateProfileDTO();
-        dto.setUserId(9999);
         dto.setName("Ghost");
         dto.setEmail("ghost@email.com");
-
+        String token = generateTestToken(999, "mandeep@email.com");
         mockMvc.perform(put("/api/users/me")
+                        .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound());
@@ -94,11 +108,10 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     void changePasswordShouldSucceedWhenOldPasswordIsCorrect() throws Exception {
         ChangePasswordDTO dto = new ChangePasswordDTO();
-        dto.setUserId(savedUser.getId());
         dto.setOldPassword("password123");
         dto.setNewPassword("newPassword456");
-
         mockMvc.perform(put("/api/users/me/password")
+                        .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk());
@@ -107,11 +120,10 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     void changePasswordShouldFailWhenOldPasswordIsWrong() throws Exception {
         ChangePasswordDTO dto = new ChangePasswordDTO();
-        dto.setUserId(savedUser.getId());
         dto.setOldPassword("wrongPassword");
         dto.setNewPassword("newPassword456");
-
         mockMvc.perform(put("/api/users/me/password")
+                        .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest());
@@ -122,18 +134,13 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     void deleteUserShouldRemoveUser() throws Exception {
         mockMvc.perform(delete("/api/users/me")
-                        .param("userId", savedUser.getId().toString()))
+                .header("Authorization", token))
                 .andExpect(status().isOk());
 
         // verify user is gone
         mockMvc.perform(get("/api/users/me")
-                        .param("userId", savedUser.getId().toString()))
+                        .header("Authorization", token))
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-    void deleteUserShouldReturn400WhenUserIdMissing() throws Exception {
-        mockMvc.perform(delete("/api/users/me"))
-                .andExpect(status().isBadRequest());
-    }
 }

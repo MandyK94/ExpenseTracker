@@ -4,6 +4,8 @@ import com.mandyk.expense.dto.AccountDTO;
 import com.mandyk.expense.exception.ResourceNotFoundException;
 import com.mandyk.expense.service.AccountService;
 import com.mandyk.expense.service.JwtService;
+import com.mandyk.expense.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,6 +40,9 @@ public class AccountControllerTest {
     @MockitoBean
     private JwtService jwtService;
 
+    @MockitoBean
+    private JwtUtil jwtUtil;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -52,8 +57,9 @@ public class AccountControllerTest {
     void getAccountShouldReturnListOfAccounts() throws Exception {
 
         when(accountService.getAccountsByUserId(1)).thenReturn(List.of(account));
-
-        mockMvc.perform(get("/api/accounts/users/1"))
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
+        mockMvc.perform(get("/api/accounts/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].name").value("Checking"))
@@ -63,8 +69,9 @@ public class AccountControllerTest {
     @Test
     void getAccountShouldReturnEmptyListWhenNoAccounts() throws Exception {
         when(accountService.getAccountsByUserId(1)).thenReturn(List.of());
-
-        mockMvc.perform(get("/api/accounts/users/1"))
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
+        mockMvc.perform(get("/api/accounts/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }
@@ -91,7 +98,8 @@ public class AccountControllerTest {
     @Test
     void shouldReturnAccountById() throws Exception {
         when(accountService.getAccountById(1, 1)).thenReturn(account);
-
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
         mockMvc.perform(get("/api/accounts/1").param("userId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -99,14 +107,10 @@ public class AccountControllerTest {
     }
 
     @Test
-    void getAccountBtIdShouldReturn400WhenUserIdIsMissing() throws Exception {
-        mockMvc.perform(get("/api/accounts/1"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void getAccountByIdShouldReturn404WhenNotFound() throws Exception {
         when(accountService.getAccountById(99, 1)).thenThrow(new ResourceNotFoundException("Account Not Found"));
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
         mockMvc.perform(get("/api/accounts/99").param("userId", "1"))
                 .andExpect(status().isNotFound());
     }
@@ -119,15 +123,10 @@ public class AccountControllerTest {
     }
 
     @Test
-    void deleteAccountShouldReturn400WhenMissingUserId() throws Exception {
-        mockMvc.perform(delete("/api/accounts/1"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void deleteAccountShouldReturn404WhenAccountNotFound() throws Exception {
         doThrow(new ResourceNotFoundException("Account Not Found")).when(accountService).deleteAccount(99, 1);
-
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
         mockMvc.perform(delete("/api/accounts/99").param("userId", "1"))
                 .andExpect(status().isNotFound());
     }

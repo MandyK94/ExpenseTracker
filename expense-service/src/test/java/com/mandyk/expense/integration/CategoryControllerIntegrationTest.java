@@ -27,7 +27,9 @@ class CategoryControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void getCategoriesShouldReturnCategoriesForUser() throws Exception {
-        mockMvc.perform(get("/api/categories/users/1"))
+        String token = generateTestToken(1, "mandeep@email.com");
+        mockMvc.perform(get("/api/categories/users")
+                        .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Food"))
                 .andExpect(jsonPath("$[0].userId").value(1));
@@ -35,7 +37,9 @@ class CategoryControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void getCategoriesShouldReturnEmptyWhenUserHasNoCategories() throws Exception {
-        mockMvc.perform(get("/api/categories/users/999"))
+        String token = generateTestToken(999, "mandeep@email.com");
+        mockMvc.perform(get("/api/categories/users")
+                        .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }
@@ -45,8 +49,10 @@ class CategoryControllerIntegrationTest extends BaseIntegrationTest {
         CategoryDTO dto = new CategoryDTO();
         dto.setName("Transport");
         dto.setUserId(1);
+        String token = generateTestToken(1, "mandeep@email.com");
 
         mockMvc.perform(post("/api/categories")
+                        .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -57,13 +63,15 @@ class CategoryControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void deleteCategoryShouldRemoveCategory() throws Exception {
+        String token = generateTestToken(savedCategory.getUserId(), "mandeep@email.com");
         mockMvc.perform(delete("/api/categories/" + savedCategory.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("userId", savedCategory.getUserId().toString()))
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         // verify it's gone
-        mockMvc.perform(get("/api/categories/users/1"))
+        mockMvc.perform(get("/api/categories/users")
+                        .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }

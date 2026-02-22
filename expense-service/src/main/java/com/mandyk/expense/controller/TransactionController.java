@@ -4,6 +4,8 @@ import com.mandyk.expense.dto.BalanceDTO;
 import com.mandyk.expense.dto.TransactionCreateRequestDTO;
 import com.mandyk.expense.dto.TransactionResponseDTO;
 import com.mandyk.expense.service.TransactionService;
+import com.mandyk.expense.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -15,68 +17,58 @@ import java.util.List;
 public class TransactionController {
 
     private TransactionService transactionService;
+    private JwtUtil jwtUtil;
 
-    public TransactionController(TransactionService transactionService) {
+    public TransactionController(TransactionService transactionService, JwtUtil jwtUtil) {
         this.transactionService = transactionService;
+        this.jwtUtil = jwtUtil;
     }
 
     // CREATE
     @PostMapping
-    public TransactionResponseDTO createTransaction(
-            @RequestBody TransactionCreateRequestDTO requestDTO) {
-
-        return transactionService.createTransaction(requestDTO);
+    public TransactionResponseDTO createTransaction(@RequestBody TransactionCreateRequestDTO requestDTO, HttpServletRequest request) {
+        return transactionService.createTransaction(requestDTO, jwtUtil.getUserIdFromRequest(request));
     }
 
 
     // GET ALL BY USER (paginated)
-    @GetMapping("/user/{userId}")
-    public Page<TransactionResponseDTO> getTransactionsByUser(
-            @PathVariable Integer userId,
-            Pageable pageable) {
+    @GetMapping("/user")
+    public Page<TransactionResponseDTO> getTransactionsByUser(HttpServletRequest request, Pageable pageable) {
 
-        return transactionService.getTransactionsByUserId(userId, pageable);
+        return transactionService.getTransactionsByUserId(jwtUtil.getUserIdFromRequest(request), pageable);
     }
 
 
     // GET BY ACCOUNT (paginated)
-    @GetMapping("/account/{accountId}/user/{userId}")
+    @GetMapping("/account/{accountId}")
     public Page<TransactionResponseDTO> getTransactionsByAccount(
-            @PathVariable Integer accountId,
-            @PathVariable Integer userId,
+            @PathVariable Integer accountId, HttpServletRequest request,
             Pageable pageable) {
 
-        return transactionService.getTransactionsByAccountId(userId, accountId, pageable);
+        return transactionService.getTransactionsByAccountId(jwtUtil.getUserIdFromRequest(request), accountId, pageable);
     }
 
 
     // GET BY CATEGORY (paginated)
-    @GetMapping("/category/{categoryId}/user/{userId}")
-    public Page<TransactionResponseDTO> getTransactionsByCategory(
-            @PathVariable Integer categoryId,
-            @PathVariable Integer userId,
-            Pageable pageable) {
+    @GetMapping("/category/{categoryId}")
+    public Page<TransactionResponseDTO> getTransactionsByCategory(@PathVariable Integer categoryId, HttpServletRequest request, Pageable pageable) {
 
-        return transactionService.getTransactionsByCategoryId(userId, categoryId, pageable);
+        return transactionService.getTransactionsByCategoryId(jwtUtil.getUserIdFromRequest(request), categoryId, pageable);
     }
 
 
     // GET SINGLE
-    @GetMapping("/{txnId}/user/{userId}")
-    public TransactionResponseDTO getTransaction(
-            @PathVariable Integer txnId,
-            @PathVariable Integer userId) {
+    @GetMapping("/{txnId}")
+    public TransactionResponseDTO getTransaction(@PathVariable Integer txnId, HttpServletRequest request) {
 
-        return transactionService.getTransaction(txnId, userId);
+        return transactionService.getTransaction(txnId, jwtUtil.getUserIdFromRequest(request));
     }
 
-    @GetMapping("/{accountId}/user/{userId}/balance")
-    public BalanceDTO getBalance(
-            @PathVariable Integer accountId,
-            @PathVariable Integer userId) {
+    @GetMapping("/{accountId}/balance")
+    public BalanceDTO getBalance(@PathVariable Integer accountId, HttpServletRequest request) {
 
         BigDecimal balance =
-                transactionService.getAccountBalance(accountId, userId);
+                transactionService.getAccountBalance(accountId, jwtUtil.getUserIdFromRequest(request));
 
         BalanceDTO dto = new BalanceDTO();
         dto.setAccountId(accountId);
@@ -86,11 +78,9 @@ public class TransactionController {
     }
 
     // DELETE
-    @DeleteMapping("/{txnId}/user/{userId}")
-    public void deleteTransaction(
-            @PathVariable Integer txnId,
-            @PathVariable Integer userId) {
+    @DeleteMapping("/{txnId}")
+    public void deleteTransaction(@PathVariable Integer txnId, HttpServletRequest request) {
 
-        transactionService.deleteTransaction(txnId, userId);
+        transactionService.deleteTransaction(txnId, jwtUtil.getUserIdFromRequest(request));
     }
 }

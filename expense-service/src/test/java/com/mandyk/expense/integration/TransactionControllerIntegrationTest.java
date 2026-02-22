@@ -40,15 +40,15 @@ class TransactionControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     void createTransactionShouldSaveAndReturnTransaction() throws Exception {
         TransactionCreateRequestDTO request = new TransactionCreateRequestDTO();
-        request.setUserId(1);
         request.setAccountId(1);
         request.setCategoryId(1);
         request.setAmount(new BigDecimal("50.00"));
         request.setDescription("Coffee");
         request.setTransactionType(TransactionType.EXPENSE);
         request.setTransactionDate(LocalDateTime.now());
-
+        String token = generateTestToken(1, "mandeep@email.com");
         mockMvc.perform(post("/api/transactions")
+                        .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -59,7 +59,9 @@ class TransactionControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void getTransactionsByUserShouldReturnPagedResults() throws Exception {
-        mockMvc.perform(get("/api/transactions/user/1"))
+        String token = generateTestToken(1, "mandeep@email.com");
+        mockMvc.perform(get("/api/transactions/user")
+                        .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].description").value("Grocery shopping"))
                 .andExpect(jsonPath("$.totalElements").value(1));
@@ -67,7 +69,9 @@ class TransactionControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void getTransactionsByAccountShouldReturnPagedResults() throws Exception {
-        mockMvc.perform(get("/api/transactions/account/1/user/1"))
+        String token = generateTestToken(1, "mandeep@email.com");
+        mockMvc.perform(get("/api/transactions/account/1")
+                        .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].accountId").value(1))
                 .andExpect(jsonPath("$.totalElements").value(1));
@@ -75,7 +79,9 @@ class TransactionControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void getTransactionsByCategoryShouldReturnPagedResults() throws Exception {
-        mockMvc.perform(get("/api/transactions/category/1/user/1"))
+        String token = generateTestToken(1, "mandeep@email.com");
+        mockMvc.perform(get("/api/transactions/category/1")
+                        .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].categoryId").value(1))
                 .andExpect(jsonPath("$.totalElements").value(1));
@@ -83,7 +89,9 @@ class TransactionControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void getTransactionShouldReturnSingleTransaction() throws Exception {
-        mockMvc.perform(get("/api/transactions/" + savedTransaction.getId() + "/user/1"))
+        String token = generateTestToken(1, "mandeep@email.com");
+        mockMvc.perform(get("/api/transactions/" + savedTransaction.getId())
+                        .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedTransaction.getId()))
                 .andExpect(jsonPath("$.description").value("Grocery shopping"));
@@ -91,7 +99,9 @@ class TransactionControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void getBalanceShouldReturnCorrectBalance() throws Exception {
-        mockMvc.perform(get("/api/transactions/1/user/1/balance"))
+        String token = generateTestToken(1, "mandeep@email.com");
+        mockMvc.perform(get("/api/transactions/1/balance")
+                        .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accountId").value(1))
                 .andExpect(jsonPath("$.balance").isNumber());
@@ -99,11 +109,14 @@ class TransactionControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void deleteTransactionShouldRemoveTransaction() throws Exception {
-        mockMvc.perform(delete("/api/transactions/" + savedTransaction.getId() + "/user/1"))
+        String token = generateTestToken(1, "mandeep@email.com");
+        mockMvc.perform(delete("/api/transactions/" + savedTransaction.getId())
+                        .header("Authorization", token))
                 .andExpect(status().isOk());
 
         // verify it's gone
-        mockMvc.perform(get("/api/transactions/" + savedTransaction.getId() + "/user/1"))
+        mockMvc.perform(get("/api/transactions/" + savedTransaction.getId())
+                        .header("Authorization", token))
                 .andExpect(status().isNotFound());
     }
 }

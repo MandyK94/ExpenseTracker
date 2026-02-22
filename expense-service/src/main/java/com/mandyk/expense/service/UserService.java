@@ -32,9 +32,9 @@ public class UserService {
     }
 
     // UPDATE PROFILE
-    public UserDTO updateProfile(UpdateProfileDTO dto) {
+    public UserDTO updateProfile(UpdateProfileDTO dto, Integer userId) {
 
-        User user = userRepository.findById(dto.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         user.setName(dto.getName());
@@ -46,9 +46,9 @@ public class UserService {
     }
 
     // CHANGE PASSWORD
-    public void changePassword(ChangePasswordDTO dto) {
+    public void changePassword(ChangePasswordDTO dto, Integer userId) {
 
-        User user = userRepository.findById(dto.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         // TODO: use BCrypt later

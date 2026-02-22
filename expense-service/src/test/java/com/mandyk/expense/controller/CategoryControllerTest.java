@@ -4,6 +4,8 @@ import com.mandyk.expense.dto.CategoryDTO;
 import com.mandyk.expense.exception.ResourceNotFoundException;
 import com.mandyk.expense.service.CategoryService;
 import com.mandyk.expense.service.JwtService;
+import com.mandyk.expense.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,9 @@ public class CategoryControllerTest {
     @MockitoBean
     private JwtService jwtService;
 
+    @MockitoBean
+    private JwtUtil jwtUtil;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -49,8 +54,9 @@ public class CategoryControllerTest {
     @Test
     public void shouldGetAllCategoriesForUserId() throws Exception {
         when(categoryService.getCategoriesByUserId(1)).thenReturn(List.of(category));
-
-        mockMvc.perform(get("/api/categories/users/1"))
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
+        mockMvc.perform(get("/api/categories/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect((jsonPath("$[0].name").value("Shopping")));
@@ -60,7 +66,7 @@ public class CategoryControllerTest {
     void getCategoriesShouldReturnEmptyListWhenNoMatch() throws Exception {
         when(categoryService.getCategoriesByUserId(1)).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/categories/users/1"))
+        mockMvc.perform(get("/api/categories/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }
@@ -68,8 +74,9 @@ public class CategoryControllerTest {
     @Test
     void getCategoriesShouldReturn404WhenUserNotFound() throws Exception {
         when(categoryService.getCategoriesByUserId(1)).thenThrow(new ResourceNotFoundException("User Not Found"));
-
-        mockMvc.perform(get("/api/categories/users/1"))
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
+        mockMvc.perform(get("/api/categories/users"))
                 .andExpect(status().isNotFound());
     }
 
@@ -113,7 +120,8 @@ public class CategoryControllerTest {
     void deleteCategoryShouldReturn404WhenCategoryNotFound() throws Exception {
         doThrow(new ResourceNotFoundException("Category not found"))
                 .when(categoryService).deleteCategory(99, 1);
-
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
         mockMvc.perform(delete("/api/categories/99").param("userId", "1"))
                 .andExpect(status().isNotFound());
     }

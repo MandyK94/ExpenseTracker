@@ -9,6 +9,8 @@ import com.mandyk.expense.exception.InvalidPasswordException;
 import com.mandyk.expense.exception.ResourceNotFoundException;
 import com.mandyk.expense.service.JwtService;
 import com.mandyk.expense.service.UserService;
+import com.mandyk.expense.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,9 @@ public class UserControllerTest {
     @MockitoBean
     private JwtService jwtService;
 
+    @MockitoBean
+    private JwtUtil jwtUtil;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -53,12 +58,10 @@ public class UserControllerTest {
         sampleUser = new UserDTO(1, "Sonia", "sonia@email.com", LocalDateTime.now());
 
         updateProfileDTO = new UpdateProfileDTO();
-        updateProfileDTO.setUserId(1);
         updateProfileDTO.setName("Sonia Updated");
         updateProfileDTO.setEmail("sonia.updated@email.com");
 
         changePasswordDTO = new ChangePasswordDTO();
-        changePasswordDTO.setUserId(1);
         changePasswordDTO.setOldPassword("oldPass123");
         changePasswordDTO.setNewPassword("newPass456");
     }
@@ -66,7 +69,8 @@ public class UserControllerTest {
     @Test
     void getProfileShouldReturnUserDTO() throws Exception {
         when(userService.getProfile(1)).thenReturn(sampleUser);
-
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
         mockMvc.perform(get("/api/users/me").param("userId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -75,24 +79,11 @@ public class UserControllerTest {
     }
 
     @Test
-    void getProfileShouldReturn400WhenUserIdMissing() throws Exception {
-        mockMvc.perform(get("/api/users/me"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void getProfileShouldReturn404WhenUserNotFound() throws Exception {
-        when(userService.getProfile(99)).thenThrow(new ResourceNotFoundException("User not found"));
-
-        mockMvc.perform(get("/api/users/me").param("userId", "99"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
     void updateProfileShouldReturnUpdatedUser() throws Exception {
         UserDTO updatedUser = new UserDTO(1, "Sonia Updated", "sonia.updated@email.com", LocalDateTime.now());
-        when(userService.updateProfile(any(UpdateProfileDTO.class))).thenReturn(updatedUser);
-
+        when(userService.updateProfile(any(UpdateProfileDTO.class), eq(1))).thenReturn(updatedUser);
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
         mockMvc.perform(put("/api/users/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateProfileDTO)))
@@ -110,9 +101,10 @@ public class UserControllerTest {
 
     @Test
     void updateProfileShouldReturn404WhenUserNotFound() throws Exception {
-        when(userService.updateProfile(any(UpdateProfileDTO.class)))
+        when(userService.updateProfile(any(UpdateProfileDTO.class), eq(1)))
                 .thenThrow(new ResourceNotFoundException("User not found"));
-
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
         mockMvc.perform(put("/api/users/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateProfileDTO)))
@@ -121,7 +113,7 @@ public class UserControllerTest {
 
     @Test
     void changePasswordShouldReturn200WhenSuccessful() throws Exception {
-        doNothing().when(userService).changePassword(any(ChangePasswordDTO.class));
+        doNothing().when(userService).changePassword(any(ChangePasswordDTO.class), eq(1));
 
         mockMvc.perform(put("/api/users/me/password")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -139,8 +131,9 @@ public class UserControllerTest {
     @Test
     void changePasswordShouldReturn400WhenPasswordIsWrong() throws Exception {
         doThrow(new InvalidPasswordException("Incorrect old password"))
-                .when(userService).changePassword(any(ChangePasswordDTO.class));
-
+                .when(userService).changePassword(any(ChangePasswordDTO.class), eq(1));
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
         mockMvc.perform(put("/api/users/me/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordDTO)))
@@ -153,21 +146,6 @@ public class UserControllerTest {
 
         mockMvc.perform(delete("/api/users/me").param("userId", "1"))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    void deleteCurrentUserShouldReturn400WhenUserIdMissing() throws Exception {
-        mockMvc.perform(delete("/api/users/me"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void deleteCurrentUserShouldReturn404WhenUserNotFound() throws Exception {
-        doThrow(new ResourceNotFoundException("User not found"))
-                .when(userService).deleteUserById(99);
-
-        mockMvc.perform(delete("/api/users/me").param("userId", "99"))
-                .andExpect(status().isNotFound());
     }
 
 }

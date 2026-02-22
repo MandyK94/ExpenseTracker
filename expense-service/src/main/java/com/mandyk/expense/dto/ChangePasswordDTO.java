@@ -2,12 +2,8 @@ package com.mandyk.expense.dto;
 
 public class ChangePasswordDTO {
 
-    private Integer userId;
     private String oldPassword;
     private String newPassword;
-
-    public Integer getUserId() { return userId; }
-    public void setUserId(Integer userId) { this.userId = userId; }
 
     public String getOldPassword() { return oldPassword; }
     public void setOldPassword(String oldPassword) { this.oldPassword = oldPassword; }

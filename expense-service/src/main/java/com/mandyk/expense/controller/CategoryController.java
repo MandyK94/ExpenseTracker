@@ -2,6 +2,8 @@ package com.mandyk.expense.controller;
 
 import com.mandyk.expense.dto.CategoryDTO;
 import com.mandyk.expense.service.CategoryService;
+import com.mandyk.expense.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,27 +13,30 @@ import java.util.List;
 public class CategoryController {
 
     private CategoryService categoryService;
+    private JwtUtil jwtUtil;
 
-    public CategoryController(CategoryService categoryService) {
+    public CategoryController(CategoryService categoryService, JwtUtil jwtUtil) {
         this.categoryService = categoryService;
+        this.jwtUtil = jwtUtil;
     }
 
     // Get categories by user
-    @GetMapping(path="/users/{userId}")
-    public List<CategoryDTO> getCategories(@PathVariable Integer userId) {
-        return categoryService.getCategoriesByUserId(userId);
+    @GetMapping(path="/users")
+    public List<CategoryDTO> getCategories(HttpServletRequest request) {
+        return categoryService.getCategoriesByUserId(jwtUtil.getUserIdFromRequest(request));
     }
 
     // Create category
     @PostMapping()
-    public CategoryDTO createCategory(@RequestBody CategoryDTO dto) {
+    public CategoryDTO createCategory(@RequestBody CategoryDTO dto, HttpServletRequest request) {
+        dto.setUserId(jwtUtil.getUserIdFromRequest(request));
         return categoryService.createCategory(dto);
     }
 
     // Delete category
     @DeleteMapping("/{id}")
-    public void deleteCategoryById(@PathVariable Integer id, @RequestParam Integer userId) {
-        categoryService.deleteCategory(id, userId);
+    public void deleteCategoryById(@PathVariable Integer id, HttpServletRequest request) {
+        categoryService.deleteCategory(id, jwtUtil.getUserIdFromRequest(request));
     }
 
 

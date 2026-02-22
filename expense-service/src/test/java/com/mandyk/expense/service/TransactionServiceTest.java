@@ -57,10 +57,11 @@ class TransactionServiceTest {
 
     @Test
     void createTransactionShouldSaveAndReturnResponse() {
+
+
         when(transactionRepository.save(any(Transaction.class))).thenReturn(savedTransaction);
 
         TransactionCreateRequestDTO request = new TransactionCreateRequestDTO();
-        request.setUserId(1);
         request.setAccountId(1);
         request.setCategoryId(1);
         request.setAmount(new BigDecimal("100.00"));
@@ -68,7 +69,7 @@ class TransactionServiceTest {
         request.setTransactionType(TransactionType.EXPENSE);
         request.setTransactionDate(LocalDateTime.now());
 
-        TransactionResponseDTO result = transactionService.createTransaction(request);
+        TransactionResponseDTO result = transactionService.createTransaction(request, 1);
 
         assertThat(result.getId()).isEqualTo(1);
         assertThat(result.getAmount()).isEqualByComparingTo("100.00");

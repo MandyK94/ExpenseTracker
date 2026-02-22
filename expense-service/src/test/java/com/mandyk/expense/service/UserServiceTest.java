@@ -68,7 +68,6 @@ class UserServiceTest {
     @Test
     void updateProfileShouldUpdateAndReturnUserDTO() {
         UpdateProfileDTO dto = new UpdateProfileDTO();
-        dto.setUserId(1);
         dto.setName("Mandeep Updated");
         dto.setEmail("mandeep.updated@email.com");
 
@@ -78,7 +77,7 @@ class UserServiceTest {
         when(userRepository.findById(1)).thenReturn(Optional.of(savedUser));
         when(userRepository.save(any(User.class))).thenReturn(updatedUser);
 
-        UserDTO result = userService.updateProfile(dto);
+        UserDTO result = userService.updateProfile(dto, 1);
 
         assertThat(result.getName()).isEqualTo("Mandeep Updated");
         assertThat(result.getEmail()).isEqualTo("mandeep.updated@email.com");
@@ -88,13 +87,12 @@ class UserServiceTest {
     @Test
     void updateProfileShouldThrowWhenUserNotFound() {
         UpdateProfileDTO dto = new UpdateProfileDTO();
-        dto.setUserId(99);
         dto.setName("Ghost");
         dto.setEmail("ghost@email.com");
 
-        when(userRepository.findById(99)).thenReturn(Optional.empty());
+        when(userRepository.findById(1)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.updateProfile(dto))
+        assertThatThrownBy(() -> userService.updateProfile(dto, 1))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found");
 
@@ -106,7 +104,7 @@ class UserServiceTest {
     @Test
     void changePasswordShouldSucceedWhenOldPasswordMatches() {
         ChangePasswordDTO dto = new ChangePasswordDTO();
-        dto.setUserId(1);
+
         dto.setOldPassword("password123");
         dto.setNewPassword("newPassword456");
 
@@ -114,7 +112,7 @@ class UserServiceTest {
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
         when(passwordEncoder.matches("password123", "password123")).thenReturn(true);
 
-        assertThatNoException().isThrownBy(() -> userService.changePassword(dto));
+        assertThatNoException().isThrownBy(() -> userService.changePassword(dto, 1));
 
         verify(userRepository).save(any(User.class));
     }
@@ -122,13 +120,13 @@ class UserServiceTest {
     @Test
     void changePasswordShouldThrowWhenOldPasswordIsWrong() {
         ChangePasswordDTO dto = new ChangePasswordDTO();
-        dto.setUserId(1);
+
         dto.setOldPassword("wrongPassword");
         dto.setNewPassword("newPassword456");
 
         when(userRepository.findById(1)).thenReturn(Optional.of(savedUser));
 
-        assertThatThrownBy(() -> userService.changePassword(dto))
+        assertThatThrownBy(() -> userService.changePassword(dto, 1))
                 .isInstanceOf(InvalidPasswordException.class)
                 .hasMessageContaining("Old password incorrect");
 
@@ -138,13 +136,13 @@ class UserServiceTest {
     @Test
     void changePasswordShouldThrowWhenUserNotFound() {
         ChangePasswordDTO dto = new ChangePasswordDTO();
-        dto.setUserId(99);
+
         dto.setOldPassword("password123");
         dto.setNewPassword("newPassword456");
 
-        when(userRepository.findById(99)).thenReturn(Optional.empty());
+        when(userRepository.findById(1)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.changePassword(dto))
+        assertThatThrownBy(() -> userService.changePassword(dto, 1))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found");
 
