@@ -7,6 +7,7 @@ import com.mandyk.expense.dto.UpdateProfileDTO;
 import com.mandyk.expense.dto.UserDTO;
 import com.mandyk.expense.exception.InvalidPasswordException;
 import com.mandyk.expense.exception.ResourceNotFoundException;
+import com.mandyk.expense.service.JwtService;
 import com.mandyk.expense.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,9 @@ public class UserControllerTest {
 
     @MockitoBean
     private UserService userService;
+
+    @MockitoBean
+    private JwtService jwtService;
 
     @Autowired
     private ObjectMapper objectMapper;

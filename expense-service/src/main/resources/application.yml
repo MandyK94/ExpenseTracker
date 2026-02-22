@@ -18,6 +18,9 @@ spring:
     init:
       mode: never #ALWAYS run schema.sql on startup
       schema-locations: classpath:schema.sql
+jwt:
+  secret: your-very-long-secret-key-that-is-at-least-256-bits-long-for-hs256
+  expiration: 86400000
 
 server:
   port: 8080

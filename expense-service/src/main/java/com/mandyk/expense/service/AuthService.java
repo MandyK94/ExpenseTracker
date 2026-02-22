@@ -13,10 +13,12 @@ public class AuthService {
 
     private UserRepository userRepository;
     private BCryptPasswordEncoder passwordEncoder;
+    private JwtService jwtService;
 
-    public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public AuthResponse registerUser(AuthRequest request) {
@@ -30,9 +32,12 @@ public class AuthService {
 
         user = userRepository.save(user);
 
+        String token = jwtService.generateToken(user.getEmail());
+
         return new AuthResponse(
                 user.getId(),
-                user.getEmail()
+                user.getEmail(),
+                token
         );
     }
 
@@ -41,7 +46,8 @@ public class AuthService {
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new InvalidPasswordException("Invalid email or Password");
         }
-        return new AuthResponse(user.getId(), user.getEmail());
+        String token = jwtService.generateToken(user.getEmail());
+        return new AuthResponse(user.getId(), user.getEmail(), token);
     }
 
 }

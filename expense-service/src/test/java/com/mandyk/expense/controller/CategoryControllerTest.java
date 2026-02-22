@@ -3,6 +3,7 @@ package com.mandyk.expense.controller;
 import com.mandyk.expense.dto.CategoryDTO;
 import com.mandyk.expense.exception.ResourceNotFoundException;
 import com.mandyk.expense.service.CategoryService;
+import com.mandyk.expense.service.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class CategoryControllerTest {
 
     @MockitoBean
     private CategoryService categoryService;
+
+    @MockitoBean
+    private JwtService jwtService;
 
     @Autowired
     private ObjectMapper objectMapper;

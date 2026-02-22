@@ -3,6 +3,7 @@ package com.mandyk.expense.controller;
 import com.mandyk.expense.dto.AccountDTO;
 import com.mandyk.expense.exception.ResourceNotFoundException;
 import com.mandyk.expense.service.AccountService;
+import com.mandyk.expense.service.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,6 +34,9 @@ public class AccountControllerTest {
 
     @MockitoBean
     private AccountService accountService;
+
+    @MockitoBean
+    private JwtService jwtService;
 
     @Autowired
     private ObjectMapper objectMapper;

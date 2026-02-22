@@ -5,6 +5,7 @@ import com.mandyk.expense.dto.AuthRequest;
 import com.mandyk.expense.dto.AuthResponse;
 import com.mandyk.expense.exception.InvalidPasswordException;
 import com.mandyk.expense.service.AuthService;
+import com.mandyk.expense.service.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class AuthControllerTest {
     @MockitoBean
     private AuthService authService;
 
+    @MockitoBean
+    private JwtService jwtService;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -42,7 +46,7 @@ public class AuthControllerTest {
         request.setEmail("sonia@email.com");
         request.setPassword("password123");
 
-        response = new AuthResponse(1, "mandeep@email.com");
+        response = new AuthResponse(1, "mandeep@email.com", "mock-jwt-token");
     }
 
     @Test

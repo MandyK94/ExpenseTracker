@@ -7,6 +7,7 @@ import com.mandyk.expense.dto.TransactionCreateRequestDTO;
 import com.mandyk.expense.dto.TransactionResponseDTO;
 import com.mandyk.expense.entity.TransactionType;
 import com.mandyk.expense.exception.ResourceNotFoundException;
+import com.mandyk.expense.service.JwtService;
 import com.mandyk.expense.service.TransactionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,9 @@ public class TransactionControllerTest {
 
     @MockitoBean
     private TransactionService transactionService;
+
+    @MockitoBean
+    private JwtService jwtService;
 
     @Autowired
     private ObjectMapper objectMapper;
