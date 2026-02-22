@@ -2,6 +2,7 @@ package com.mandyk.expense.service;
 
 import com.mandyk.expense.dto.AccountDTO;
 import com.mandyk.expense.entity.Account;
+import com.mandyk.expense.exception.ResourceNotFoundException;
 import com.mandyk.expense.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,7 @@ public class AccountService {
 
         Account account = accountRepository
                 .findByIdAndUserId(accountId, userId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
         return mapToDTO(account);
     }
@@ -56,7 +57,7 @@ public class AccountService {
 
         Account account = accountRepository
                 .findByIdAndUserId(accountId, userId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
         accountRepository.delete(account);
     }

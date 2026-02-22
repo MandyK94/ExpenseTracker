@@ -3,6 +3,7 @@ package com.mandyk.expense.service;
 import com.mandyk.expense.dto.AuthRequest;
 import com.mandyk.expense.dto.AuthResponse;
 import com.mandyk.expense.entity.User;
+import com.mandyk.expense.exception.InvalidPasswordException;
 import com.mandyk.expense.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,12 +21,12 @@ public class AuthService {
 
     public AuthResponse registerUser(AuthRequest request) {
         if(userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new IllegalArgumentException("Email already exists");
         }
 
         User user = new User();
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         user = userRepository.save(user);
 
@@ -37,9 +38,9 @@ public class AuthService {
     }
 
     public AuthResponse loginUser(AuthRequest request) {
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(()-> new RuntimeException("Invalid email or password"));
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(()-> new InvalidPasswordException("Invalid email or password"));
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid email or Password");
+            throw new InvalidPasswordException("Invalid email or Password");
         }
         return new AuthResponse(user.getId(), user.getEmail(), user.getPassword());
     }

@@ -3,6 +3,7 @@ package com.mandyk.expense.service;
 import com.mandyk.expense.dto.TransactionCreateRequestDTO;
 import com.mandyk.expense.dto.TransactionResponseDTO;
 import com.mandyk.expense.entity.Transaction;
+import com.mandyk.expense.exception.ResourceNotFoundException;
 import com.mandyk.expense.repository.TransactionRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -81,7 +82,7 @@ public class TransactionService {
         Transaction transaction = transactionRepository
                 .findByIdAndUserId(txnId, userId)
                 .orElseThrow(() ->
-                        new RuntimeException("Transaction not found"));
+                        new ResourceNotFoundException("Transaction not found"));
 
         return mapToResponse(transaction);
     }
@@ -95,7 +96,7 @@ public class TransactionService {
         Transaction transaction = transactionRepository
                 .findByIdAndUserId(txnId, userId)
                 .orElseThrow(() ->
-                        new RuntimeException("Transaction not found"));
+                        new ResourceNotFoundException("Transaction not found"));
 
         transactionRepository.delete(transaction);
     }
