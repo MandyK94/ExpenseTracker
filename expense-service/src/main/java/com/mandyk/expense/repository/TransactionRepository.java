@@ -70,4 +70,17 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
             """)
     List<Object[]> getExpenseByCategory(Integer userId);
 
+    @Query("""
+       SELECT COALESCE(SUM(
+           CASE 
+               WHEN t.transactionType = 'INCOME' THEN t.amount
+               WHEN t.transactionType = 'EXPENSE' THEN -t.amount
+           END
+       ), 0)
+       FROM Transaction t
+       WHERE t.userId = :userId
+       AND t.accountId = :accountId
+       """)
+    BigDecimal getAccountBalance(Integer userId, Integer accountId);
+
 }

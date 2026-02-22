@@ -20,9 +20,6 @@ public class Account {
     @Column(name="user_id", nullable = false)
     private Integer userId;
 
-    @Column(nullable = false)
-    private BigDecimal balance = BigDecimal.ZERO;
-
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -31,24 +28,11 @@ public class Account {
     public Account(String name, Integer userId) {
         this.name = name;
         this.userId = userId;
-        this.balance = BigDecimal.ZERO;
         this.createdAt = LocalDateTime.now();
     }
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
-
-        if (this.balance == null)
-            this.balance = BigDecimal.ZERO;
-    }
-
-
-    public BigDecimal getBalance() {
-        return balance;
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
     }
 
     public LocalDateTime getCreatedAt() {

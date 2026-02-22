@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/api/accounts")
 @RestController
+@RequestMapping("/api/accounts")
 public class AccountController {
 
     private AccountService accountService;

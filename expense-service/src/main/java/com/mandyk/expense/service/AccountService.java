@@ -45,7 +45,6 @@ public class AccountService {
 
         account.setUserId(dto.getUserId());
         account.setName(dto.getName());
-        account.setBalance(dto.getBalance() != null ? dto.getBalance() : BigDecimal.ZERO);
 
         Account saved = accountRepository.save(account);
 
@@ -70,7 +69,6 @@ public class AccountService {
         dto.setId(account.getId());
         dto.setName(account.getName());
         dto.setUserId(account.getUserId());
-        dto.setBalance(account.getBalance());
         dto.setCreatedAt(account.getCreatedAt());
 
         return dto;

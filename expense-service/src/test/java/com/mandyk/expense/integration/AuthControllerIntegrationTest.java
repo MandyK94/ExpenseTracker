@@ -1,4 +1,7 @@
 package com.mandyk.expense.integration;
 
-public class AuthControllerIntegrationTest {
+import org.springframework.transaction.annotation.Transactional;
+
+@Transactional
+public class AuthControllerIntegrationTest extends BaseIntegrationTest {
 }

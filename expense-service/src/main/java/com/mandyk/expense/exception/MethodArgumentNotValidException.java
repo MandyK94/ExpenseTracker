@@ -1,4 +1,8 @@
 package com.mandyk.expense.exception;
 
-public class MethodArgumentNotValidException {
+public class MethodArgumentNotValidException extends RuntimeException {
+
+    public MethodArgumentNotValidException(String message) {
+        super(message);
+    }
 }

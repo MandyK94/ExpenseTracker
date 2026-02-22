@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class TransactionService {
 
@@ -98,6 +100,11 @@ public class TransactionService {
         transactionRepository.delete(transaction);
     }
 
+    // GET BALANCE
+    public BigDecimal getAccountBalance(Integer accountId, Integer userId) {
+
+        return transactionRepository.getAccountBalance(userId, accountId);
+    }
 
     private TransactionResponseDTO mapToResponse(Transaction t) {
 

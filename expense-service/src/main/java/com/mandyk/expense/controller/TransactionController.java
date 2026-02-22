@@ -1,5 +1,6 @@
 package com.mandyk.expense.controller;
 
+import com.mandyk.expense.dto.BalanceDTO;
 import com.mandyk.expense.dto.TransactionCreateRequestDTO;
 import com.mandyk.expense.dto.TransactionResponseDTO;
 import com.mandyk.expense.service.TransactionService;
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 @RestController
 @RequestMapping("/api/transactions")
@@ -68,6 +70,20 @@ public class TransactionController {
         return transactionService.getTransaction(txnId, userId);
     }
 
+    @GetMapping("/{accountId}/user/{userId}/balance")
+    public BalanceDTO getBalance(
+            @PathVariable Integer accountId,
+            @PathVariable Integer userId) {
+
+        BigDecimal balance =
+                transactionService.getAccountBalance(accountId, userId);
+
+        BalanceDTO dto = new BalanceDTO();
+        dto.setAccountId(accountId);
+        dto.setBalance(balance);
+
+        return dto;
+    }
 
     // DELETE
     @DeleteMapping("/{txnId}/user/{userId}")

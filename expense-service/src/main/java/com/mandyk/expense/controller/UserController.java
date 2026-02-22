@@ -1,5 +1,7 @@
 package com.mandyk.expense.controller;
 
+import com.mandyk.expense.dto.ChangePasswordDTO;
+import com.mandyk.expense.dto.UpdateProfileDTO;
 import com.mandyk.expense.dto.UserDTO;
 import com.mandyk.expense.service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -14,24 +16,31 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping(path="/me")
-    public UserDTO getProfile() {
+    // GET PROFILE
+    @GetMapping("/me")
+    public UserDTO getProfile(@RequestParam Integer userId) {
 
+        return userService.getProfile(userId);
     }
 
-    @PutMapping(path="/me")
-    public UserDTO updateProfile() {
+    // UPDATE PROFILE
+    @PutMapping("/me")
+    public UserDTO updateProfile(@RequestBody UpdateProfileDTO dto) {
 
+        return userService.updateProfile(dto);
     }
 
+    // CHANGE PASSWORD
     @PutMapping("/me/password")
-    public UserDTO changePassword() {
+    public void changePassword(@RequestBody ChangePasswordDTO dto) {
 
+        userService.changePassword(dto);
     }
 
+    // DELETE USER
     @DeleteMapping("/me")
-    public void deleterCurrentUser(@RequestParam Integer userId) {
+    public void deleteCurrentUser(@RequestParam Integer userId) {
+
         userService.deleteUserById(userId);
     }
-
 }

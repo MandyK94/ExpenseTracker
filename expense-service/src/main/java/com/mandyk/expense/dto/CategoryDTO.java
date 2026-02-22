@@ -6,6 +6,14 @@ public class CategoryDTO {
     private String name;
     private Integer userId;
 
+    public CategoryDTO() {}
+
+    public CategoryDTO(Integer id, String name, Integer userId) {
+        this.id = id;
+        this.name = name;
+        this.userId = userId;
+    }
+
     public Integer getId() {
         return id;
     }

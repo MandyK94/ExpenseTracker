@@ -27,6 +27,7 @@ public class UserRepositoryTest extends BaseRepositoryTest {
     @BeforeEach
     void setup() {
         user = new User();
+        user.setName("X");
         user.setEmail("example1@gmail.com");
         user.setPassword("password");
         testEntityManager.persist(user);
@@ -40,6 +41,7 @@ public class UserRepositoryTest extends BaseRepositoryTest {
 
         // Arrange
         User newUser = new User();
+        newUser.setName("X2");
         newUser.setEmail("example2@gmail.com");
         newUser.setPassword("password");
 
@@ -56,7 +58,7 @@ public class UserRepositoryTest extends BaseRepositoryTest {
     void shouldReturnUserByEmail() {
 
         // Arrange
-        User user = new User("example3@gmail.com", "password1");
+        User user = new User("name1", "example3@gmail.com", "password1");
         testEntityManager.persist(user);
         testEntityManager.flush();
 
@@ -72,6 +74,7 @@ public class UserRepositoryTest extends BaseRepositoryTest {
     @DisplayName("should throw exception for saving user with duplicate email")
     void shouldThrowExceptionDuplicateEmail() {
         User duplicate = new User();
+        duplicate.setName("duplicate");
         duplicate.setEmail("example1@gmail.com");
         duplicate.setPassword("password");
 

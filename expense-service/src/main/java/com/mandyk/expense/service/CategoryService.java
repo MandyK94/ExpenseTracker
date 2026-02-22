@@ -40,9 +40,9 @@ public class CategoryService {
     }
 
     // Delete category
-    public void deleteCategory(Integer id) {
+    public void deleteCategory(Integer id, Integer userId) {
 
-        Category category = categoryRepository.findById(id)
+        Category category = categoryRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
         categoryRepository.delete(category);
