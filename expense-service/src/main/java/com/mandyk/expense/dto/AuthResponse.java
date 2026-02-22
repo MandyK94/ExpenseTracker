@@ -6,12 +6,10 @@ public class AuthResponse {
 
     private String email;
 
-    private String password;
 
-    public AuthResponse(Integer id, String email, String password) {
+    public AuthResponse(Integer id, String email) {
         this.id = id;
         this.email = email;
-        this.password = password;
     }
 
     public Integer getId() {
@@ -28,13 +26,5 @@ public class AuthResponse {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }

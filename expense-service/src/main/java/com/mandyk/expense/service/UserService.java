@@ -4,7 +4,10 @@ import com.mandyk.expense.dto.ChangePasswordDTO;
 import com.mandyk.expense.dto.UpdateProfileDTO;
 import com.mandyk.expense.dto.UserDTO;
 import com.mandyk.expense.entity.User;
+import com.mandyk.expense.exception.InvalidPasswordException;
+import com.mandyk.expense.exception.ResourceNotFoundException;
 import com.mandyk.expense.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,15 +15,18 @@ public class UserService {
 
     private UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    private BCryptPasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // GET PROFILE
     public UserDTO getProfile(Integer userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return mapToDTO(user);
     }
@@ -29,7 +35,7 @@ public class UserService {
     public UserDTO updateProfile(UpdateProfileDTO dto) {
 
         User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
@@ -43,20 +49,23 @@ public class UserService {
     public void changePassword(ChangePasswordDTO dto) {
 
         User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         // TODO: use BCrypt later
-        if (!user.getPassword().equals(dto.getOldPassword())) {
-            throw new RuntimeException("Old password incorrect");
+        if (!passwordEncoder.matches(dto.getOldPassword(), user.getPassword())) {
+            throw new InvalidPasswordException("Old password incorrect");
         }
 
-        user.setPassword(dto.getNewPassword());
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
 
         userRepository.save(user);
     }
 
     // DELETE USER
     public void deleteUserById(Integer userId) {
+        if(!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User not found");
+        }
         userRepository.deleteById(userId);
     }
 

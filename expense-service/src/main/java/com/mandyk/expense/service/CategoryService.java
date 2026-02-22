@@ -2,6 +2,7 @@ package com.mandyk.expense.service;
 
 import com.mandyk.expense.dto.CategoryDTO;
 import com.mandyk.expense.entity.Category;
+import com.mandyk.expense.exception.ResourceNotFoundException;
 import com.mandyk.expense.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +44,7 @@ public class CategoryService {
     public void deleteCategory(Integer id, Integer userId) {
 
         Category category = categoryRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         categoryRepository.delete(category);
     }

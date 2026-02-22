@@ -32,8 +32,7 @@ public class AuthService {
 
         return new AuthResponse(
                 user.getId(),
-                user.getEmail(),
-                user.getPassword()
+                user.getEmail()
         );
     }
 
@@ -42,7 +41,7 @@ public class AuthService {
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new InvalidPasswordException("Invalid email or Password");
         }
-        return new AuthResponse(user.getId(), user.getEmail(), user.getPassword());
+        return new AuthResponse(user.getId(), user.getEmail());
     }
 
 }

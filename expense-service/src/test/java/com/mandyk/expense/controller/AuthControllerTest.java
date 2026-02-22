@@ -42,7 +42,7 @@ public class AuthControllerTest {
         request.setEmail("sonia@email.com");
         request.setPassword("password123");
 
-        response = new AuthResponse(1, "sonia@email.com", "encodedPassword");
+        response = new AuthResponse(1, "mandeep@email.com");
     }
 
     @Test
@@ -54,7 +54,7 @@ public class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.email").value("sonia@email.com"));
+                .andExpect(jsonPath("$.email").value("mandeep@email.com"));
     }
 
     @Test
@@ -113,7 +113,7 @@ public class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.email").value("sonia@email.com"));
+                .andExpect(jsonPath("$.email").value("mandeep@email.com"));
     }
 
     @Test
