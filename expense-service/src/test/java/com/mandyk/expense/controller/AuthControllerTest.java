@@ -3,6 +3,7 @@ package com.mandyk.expense.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mandyk.expense.dto.AuthRequest;
 import com.mandyk.expense.dto.AuthResponse;
+import com.mandyk.expense.exception.GlobalExceptionHandler;
 import com.mandyk.expense.exception.InvalidPasswordException;
 import com.mandyk.expense.service.AuthService;
 import com.mandyk.expense.service.JwtService;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import(GlobalExceptionHandler.class)
 public class AuthControllerTest {
 
     @Autowired

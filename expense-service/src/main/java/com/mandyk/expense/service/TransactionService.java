@@ -4,27 +4,47 @@ import com.mandyk.expense.dto.TransactionCreateRequestDTO;
 import com.mandyk.expense.dto.TransactionResponseDTO;
 import com.mandyk.expense.entity.Transaction;
 import com.mandyk.expense.exception.ResourceNotFoundException;
+import com.mandyk.expense.repository.AccountRepository;
+import com.mandyk.expense.repository.CategoryRepository;
 import com.mandyk.expense.repository.TransactionRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Service
 public class TransactionService {
 
     private TransactionRepository transactionRepository;
+    private AccountRepository accountRepository;
+    private CategoryRepository categoryRepository;
 
-    public TransactionService(TransactionRepository transactionRepository) {
+    public TransactionService(TransactionRepository transactionRepository,
+                              AccountRepository accountRepository,
+                              CategoryRepository categoryRepository) {
         this.transactionRepository = transactionRepository;
+        this.accountRepository = accountRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     // CREATE
     public TransactionResponseDTO createTransaction(TransactionCreateRequestDTO request, Integer userId) {
 
-        Transaction transaction = new Transaction();
+        accountRepository.findByIdAndUserId(request.getAccountId(), userId)
+                .orElseThrow(()-> new ResourceNotFoundException("Account not found"));
 
+        if(request.getCategoryId() != null) {
+            categoryRepository.findByIdAndUserId(request.getCategoryId(), userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        }
+
+        if(request.getTransactionDate().isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Transaction date cannot be in future");
+        }
+
+        Transaction transaction = new Transaction();
         transaction.setUserId(userId);
         transaction.setAccountId(request.getAccountId());
         transaction.setCategoryId(request.getCategoryId());
@@ -55,6 +75,9 @@ public class TransactionService {
             Integer userId,
             Integer accountId,
             Pageable pageable) {
+
+        accountRepository.findByIdAndUserId(accountId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
         return transactionRepository
                 .findByUserIdAndAccountId(userId, accountId, pageable)
@@ -103,6 +126,9 @@ public class TransactionService {
 
     // GET BALANCE
     public BigDecimal getAccountBalance(Integer accountId, Integer userId) {
+
+        accountRepository.findByIdAndUserId(accountId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
         return transactionRepository.getAccountBalance(userId, accountId);
     }

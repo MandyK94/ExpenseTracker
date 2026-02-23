@@ -2,9 +2,13 @@ package com.mandyk.expense.service;
 
 import com.mandyk.expense.dto.TransactionCreateRequestDTO;
 import com.mandyk.expense.dto.TransactionResponseDTO;
+import com.mandyk.expense.entity.Account;
+import com.mandyk.expense.entity.Category;
 import com.mandyk.expense.entity.Transaction;
 import com.mandyk.expense.entity.TransactionType;
 import com.mandyk.expense.exception.ResourceNotFoundException;
+import com.mandyk.expense.repository.AccountRepository;
+import com.mandyk.expense.repository.CategoryRepository;
 import com.mandyk.expense.repository.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import javax.swing.text.html.Option;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,10 +37,18 @@ class TransactionServiceTest {
     @Mock
     private TransactionRepository transactionRepository;
 
+    @Mock
+    private AccountRepository accountRepository;
+
+    @Mock
+    private CategoryRepository categoryRepository;
+
     @InjectMocks
     private TransactionService transactionService;
 
     private Transaction savedTransaction;
+    private Account savedAccount;
+    private Category savedCategory;
     private Pageable pageable;
 
     @BeforeEach
@@ -50,6 +63,16 @@ class TransactionServiceTest {
         savedTransaction.setTransactionType(TransactionType.EXPENSE);
         savedTransaction.setTransactionDate(LocalDateTime.now());
 
+        savedAccount = new Account();
+        savedAccount.setName("Savings");
+        savedAccount.setUserId(1);
+        savedAccount.setId(1);
+
+        savedCategory = new Category();
+        savedCategory.setName("Shopping");
+        savedCategory.setUserId(1);
+        savedCategory.setId(1);
+
         pageable = PageRequest.of(0, 10);
     }
 
@@ -60,6 +83,8 @@ class TransactionServiceTest {
 
 
         when(transactionRepository.save(any(Transaction.class))).thenReturn(savedTransaction);
+        when(accountRepository.findByIdAndUserId(any(Integer.class), any(Integer.class))).thenReturn(Optional.of(savedAccount));
+        when(categoryRepository.findByIdAndUserId(any(Integer.class), any(Integer.class))).thenReturn(Optional.of(savedCategory));
 
         TransactionCreateRequestDTO request = new TransactionCreateRequestDTO();
         request.setAccountId(1);
@@ -107,7 +132,7 @@ class TransactionServiceTest {
     void getTransactionsByAccountIdShouldReturnPage() {
         Page<Transaction> page = new PageImpl<>(List.of(savedTransaction));
         when(transactionRepository.findByUserIdAndAccountId(1, 1, pageable)).thenReturn(page);
-
+        when(accountRepository.findByIdAndUserId(any(Integer.class), any(Integer.class))).thenReturn(Optional.of(savedAccount));
         Page<TransactionResponseDTO> result = transactionService.getTransactionsByAccountId(1, 1, pageable);
 
         assertThat(result.getTotalElements()).isEqualTo(1);
@@ -176,7 +201,7 @@ class TransactionServiceTest {
     @Test
     void getAccountBalanceShouldReturnBalance() {
         when(transactionRepository.getAccountBalance(1, 1)).thenReturn(new BigDecimal("500.00"));
-
+        when(accountRepository.findByIdAndUserId(any(Integer.class), any(Integer.class))).thenReturn(Optional.of(savedAccount));
         BigDecimal balance = transactionService.getAccountBalance(1, 1);
 
         assertThat(balance).isEqualByComparingTo("500.00");
@@ -185,7 +210,7 @@ class TransactionServiceTest {
     @Test
     void getAccountBalanceShouldReturnZeroWhenNoTransactions() {
         when(transactionRepository.getAccountBalance(1, 1)).thenReturn(BigDecimal.ZERO);
-
+        when(accountRepository.findByIdAndUserId(any(Integer.class), any(Integer.class))).thenReturn(Optional.of(savedAccount));
         BigDecimal balance = transactionService.getAccountBalance(1, 1);
 
         assertThat(balance).isEqualByComparingTo(BigDecimal.ZERO);

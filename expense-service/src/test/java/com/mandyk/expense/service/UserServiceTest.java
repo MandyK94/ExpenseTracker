@@ -128,7 +128,7 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.changePassword(dto, 1))
                 .isInstanceOf(InvalidPasswordException.class)
-                .hasMessageContaining("Old password incorrect");
+                .hasMessageContaining("Old password is incorrect");
 
         verify(userRepository, never()).save(any());
     }

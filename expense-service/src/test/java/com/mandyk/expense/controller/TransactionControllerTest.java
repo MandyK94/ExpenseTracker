@@ -223,8 +223,9 @@ public class TransactionControllerTest {
     void getTransactionShouldReturn404WhenNotFound() throws Exception {
         when(transactionService.getTransaction(99, 1))
                 .thenThrow(new ResourceNotFoundException("Transaction not found"));
-
-        mockMvc.perform(get("/api/transactions/99/user/1"))
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
+        mockMvc.perform(get("/api/transactions/99"))
                 .andExpect(status().isNotFound());
     }
 
@@ -263,7 +264,9 @@ public class TransactionControllerTest {
         doThrow(new ResourceNotFoundException("Transaction not found"))
                 .when(transactionService).deleteTransaction(99, 1);
 
-        mockMvc.perform(delete("/api/transactions/99/user/1"))
+        when(jwtUtil.getUserIdFromRequest(any(HttpServletRequest.class)))
+                .thenReturn(1);
+        mockMvc.perform(delete("/api/transactions/99"))
                 .andExpect(status().isNotFound());
     }
 }

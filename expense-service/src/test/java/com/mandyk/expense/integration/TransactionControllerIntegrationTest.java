@@ -1,13 +1,16 @@
 package com.mandyk.expense.integration;
 
 import com.mandyk.expense.dto.TransactionCreateRequestDTO;
-import com.mandyk.expense.entity.Transaction;
-import com.mandyk.expense.entity.TransactionType;
+import com.mandyk.expense.entity.*;
+import com.mandyk.expense.repository.AccountRepository;
+import com.mandyk.expense.repository.CategoryRepository;
 import com.mandyk.expense.repository.TransactionRepository;
+import com.mandyk.expense.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -22,31 +25,56 @@ class TransactionControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
+    private String token;
+    private Account savedAccount;
+    private Category savedCategory;
+    private User savedUser;
     private Transaction savedTransaction;
 
     @BeforeEach
     void setUp() {
+        savedUser = new User();
+        savedUser.setName("Mandeep");
+        savedUser.setEmail("mandeep@email.com");
+        savedUser.setPassword(passwordEncoder.encode("Password123"));
+        savedUser = userRepository.save(savedUser);
+
+        token = generateTestToken(savedUser.getId(), savedUser.getEmail());
+        savedAccount = accountRepository.save(new Account("Checking", savedUser.getId()));
+        savedCategory = categoryRepository.save(new Category(savedUser.getId(), "Food"));
+
         Transaction t = new Transaction();
-        t.setUserId(1);
-        t.setAccountId(1);
-        t.setCategoryId(1);
+        t.setUserId(savedUser.getId());
+        t.setAccountId(savedAccount.getId());
+        t.setCategoryId(savedCategory.getId());
         t.setAmount(new BigDecimal("100.00"));
         t.setDescription("Grocery shopping");
         t.setTransactionType(TransactionType.EXPENSE);
-        t.setTransactionDate(LocalDateTime.now());
+        t.setTransactionDate(LocalDateTime.now().minusDays(1));
         savedTransaction = transactionRepository.save(t);
     }
 
     @Test
     void createTransactionShouldSaveAndReturnTransaction() throws Exception {
         TransactionCreateRequestDTO request = new TransactionCreateRequestDTO();
-        request.setAccountId(1);
-        request.setCategoryId(1);
+        request.setAccountId(savedAccount.getId());
+        request.setCategoryId(savedCategory.getId());
         request.setAmount(new BigDecimal("50.00"));
         request.setDescription("Coffee");
         request.setTransactionType(TransactionType.EXPENSE);
         request.setTransactionDate(LocalDateTime.now());
-        String token = generateTestToken(1, "mandeep@email.com");
         mockMvc.perform(post("/api/transactions")
                         .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -59,7 +87,6 @@ class TransactionControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void getTransactionsByUserShouldReturnPagedResults() throws Exception {
-        String token = generateTestToken(1, "mandeep@email.com");
         mockMvc.perform(get("/api/transactions/user")
                         .header("Authorization", token))
                 .andExpect(status().isOk())
@@ -69,27 +96,24 @@ class TransactionControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void getTransactionsByAccountShouldReturnPagedResults() throws Exception {
-        String token = generateTestToken(1, "mandeep@email.com");
-        mockMvc.perform(get("/api/transactions/account/1")
+        mockMvc.perform(get("/api/transactions/account/"+savedAccount.getId())
                         .header("Authorization", token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].accountId").value(1))
+                .andExpect(jsonPath("$.content[0].accountId").value(savedAccount.getId()))
                 .andExpect(jsonPath("$.totalElements").value(1));
     }
 
     @Test
     void getTransactionsByCategoryShouldReturnPagedResults() throws Exception {
-        String token = generateTestToken(1, "mandeep@email.com");
-        mockMvc.perform(get("/api/transactions/category/1")
+        mockMvc.perform(get("/api/transactions/category/"+savedCategory.getId())
                         .header("Authorization", token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].categoryId").value(1))
+                .andExpect(jsonPath("$.content[0].categoryId").value(savedCategory.getId()))
                 .andExpect(jsonPath("$.totalElements").value(1));
     }
 
     @Test
     void getTransactionShouldReturnSingleTransaction() throws Exception {
-        String token = generateTestToken(1, "mandeep@email.com");
         mockMvc.perform(get("/api/transactions/" + savedTransaction.getId())
                         .header("Authorization", token))
                 .andExpect(status().isOk())
@@ -99,17 +123,15 @@ class TransactionControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void getBalanceShouldReturnCorrectBalance() throws Exception {
-        String token = generateTestToken(1, "mandeep@email.com");
-        mockMvc.perform(get("/api/transactions/1/balance")
+        mockMvc.perform(get("/api/transactions/"+ savedAccount.getId()+ "/balance")
                         .header("Authorization", token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accountId").value(1))
+                .andExpect(jsonPath("$.accountId").value(savedAccount.getId()))
                 .andExpect(jsonPath("$.balance").isNumber());
     }
 
     @Test
     void deleteTransactionShouldRemoveTransaction() throws Exception {
-        String token = generateTestToken(1, "mandeep@email.com");
         mockMvc.perform(delete("/api/transactions/" + savedTransaction.getId())
                         .header("Authorization", token))
                 .andExpect(status().isOk());

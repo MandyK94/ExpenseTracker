@@ -42,6 +42,10 @@ public class AccountService {
     // Create account
     public AccountDTO createAccount(AccountDTO dto) {
 
+        if(accountRepository.existsByNameAndUserId(dto.getName(), dto.getUserId())) {
+            throw new IllegalArgumentException("Account with this name already exists");
+        }
+
         Account account = new Account();
 
         account.setUserId(dto.getUserId());

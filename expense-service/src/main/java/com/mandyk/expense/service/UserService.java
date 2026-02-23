@@ -37,6 +37,10 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        if(!user.getEmail().equals(dto.getEmail()) && userRepository.existsByEmail(dto.getEmail())) {
+            throw new IllegalArgumentException("Email already in use");
+        }
+
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
 
@@ -51,9 +55,12 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        // TODO: use BCrypt later
         if (!passwordEncoder.matches(dto.getOldPassword(), user.getPassword())) {
-            throw new InvalidPasswordException("Old password incorrect");
+            throw new InvalidPasswordException("Old password is incorrect");
+        }
+
+        if(passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("New password must be different from old password");
         }
 
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));

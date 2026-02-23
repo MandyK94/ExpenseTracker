@@ -13,6 +13,8 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
     Optional<Category> findByIdAndUserId(Integer id, Integer userId);
 
+    boolean existsByNameAndUserId(String name, Integer userId);
+
     List<Category> findByUserId(Integer userId);
 
     @Query("""

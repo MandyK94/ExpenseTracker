@@ -1,7 +1,9 @@
 package com.mandyk.expense.integration;
 
 import com.mandyk.expense.dto.AuthRequest;
+import com.mandyk.expense.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,6 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Transactional
+@Import(GlobalExceptionHandler.class)
 public class AuthControllerIntegrationTest extends BaseIntegrationTest {
 
     private AuthRequest buildRequest(String email, String password) {
