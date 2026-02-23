@@ -1,8 +1,13 @@
 package com.mandyk.expense.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class CategoryDTO {
 
     private Integer id;
+    @NotBlank(message="Category name is required")
+    @Size(max=100, message = "Category name too long")
     private String name;
     private Integer userId;
 

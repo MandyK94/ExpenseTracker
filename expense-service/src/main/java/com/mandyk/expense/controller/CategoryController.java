@@ -4,6 +4,7 @@ import com.mandyk.expense.dto.CategoryDTO;
 import com.mandyk.expense.service.CategoryService;
 import com.mandyk.expense.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class CategoryController {
 
     // Create category
     @PostMapping()
-    public CategoryDTO createCategory(@RequestBody CategoryDTO dto, HttpServletRequest request) {
+    public CategoryDTO createCategory(@Valid @RequestBody CategoryDTO dto, HttpServletRequest request) {
         dto.setUserId(jwtUtil.getUserIdFromRequest(request));
         return categoryService.createCategory(dto);
     }

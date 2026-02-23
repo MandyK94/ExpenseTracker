@@ -6,6 +6,7 @@ import com.mandyk.expense.dto.TransactionResponseDTO;
 import com.mandyk.expense.service.TransactionService;
 import com.mandyk.expense.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class TransactionController {
 
     // CREATE
     @PostMapping
-    public TransactionResponseDTO createTransaction(@RequestBody TransactionCreateRequestDTO requestDTO, HttpServletRequest request) {
+    public TransactionResponseDTO createTransaction(@Valid @RequestBody TransactionCreateRequestDTO requestDTO, HttpServletRequest request) {
         return transactionService.createTransaction(requestDTO, jwtUtil.getUserIdFromRequest(request));
     }
 

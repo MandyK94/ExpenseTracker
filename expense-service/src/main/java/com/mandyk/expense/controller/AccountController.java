@@ -4,6 +4,7 @@ import com.mandyk.expense.dto.AccountDTO;
 import com.mandyk.expense.service.AccountService;
 import com.mandyk.expense.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class AccountController {
 
     // Create account
     @PostMapping()
-    public AccountDTO createAccount(@RequestBody AccountDTO dto, HttpServletRequest request) {
+    public AccountDTO createAccount(@Valid @RequestBody AccountDTO dto, HttpServletRequest request) {
         dto.setUserId(jwtUtil.getUserIdFromRequest(request));
         return accountService.createAccount(dto);
     }

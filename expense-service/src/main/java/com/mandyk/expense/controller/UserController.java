@@ -6,6 +6,7 @@ import com.mandyk.expense.dto.UserDTO;
 import com.mandyk.expense.service.UserService;
 import com.mandyk.expense.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,14 +30,14 @@ public class UserController {
 
     // UPDATE PROFILE
     @PutMapping("/me")
-    public UserDTO updateProfile(@RequestBody UpdateProfileDTO dto, HttpServletRequest request) {
+    public UserDTO updateProfile(@Valid @RequestBody UpdateProfileDTO dto, HttpServletRequest request) {
 
         return userService.updateProfile(dto, jwtUtil.getUserIdFromRequest(request));
     }
 
     // CHANGE PASSWORD
     @PutMapping("/me/password")
-    public void changePassword(@RequestBody ChangePasswordDTO dto, HttpServletRequest request) {
+    public void changePassword(@Valid @RequestBody ChangePasswordDTO dto, HttpServletRequest request) {
 
         userService.changePassword(dto, jwtUtil.getUserIdFromRequest(request));
     }

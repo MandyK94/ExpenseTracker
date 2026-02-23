@@ -1,11 +1,16 @@
 package com.mandyk.expense.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class AccountDTO {
 
     private Integer id;
+    @NotBlank(message="Account name is required")
+    @Size(max=100, message = "Account name too long")
     private String name;
     private Integer userId;
     private LocalDateTime createdAt;
