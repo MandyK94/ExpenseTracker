@@ -5,6 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -17,6 +19,8 @@ import java.util.List;
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthFilter.class);
+
     private JwtService jwtService;
 
     public JwtAuthFilter(JwtService jwtService) {
@@ -25,24 +29,37 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        log.debug("JwtAuthFilter hit for: {}", request.getRequestURI());
+
         String authHeader = request.getHeader("Authorization");
+        log.info("Auth header: {}", authHeader);
 
         // if no token, skip filter
         if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.warn("No Bearer token found, skipping filter");
             filterChain.doFilter(request, response);
             return;
         }
 
         String token = authHeader.substring(7); // Remove "Bearer "
-        String email = jwtService.extractEmail(token);
+        log.debug("Token extracted: {}", token);
+        try {
+            String email = jwtService.extractEmail(token);
+            log.debug("Email extracted from token: {}", email);
 
-        // If email extracted and no existing authentication
-        if(email != null && SecurityContextHolder.getContext().getAuthentication()==null) {
-            if(jwtService.isTokenValid(token, email)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, null, List.of());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            // If email extracted and no existing authentication
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                if (jwtService.isTokenValid(token, email)) {
+                    log.debug("Token is valid for: {}", email);
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, null, List.of());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    log.warn("Token is invalid for: {}", email);
+                }
             }
+        } catch (Exception ex) {
+            log.error("Error processing JWT token: ", ex);
         }
         filterChain.doFilter(request, response);
     }

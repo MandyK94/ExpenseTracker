@@ -18,6 +18,14 @@ spring:
     init:
       mode: never #ALWAYS run schema.sql on startup
       schema-locations: classpath:schema.sql
+
+logging:
+  level:
+    com.mandyk.expense: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+
 jwt:
   secret: your-very-long-secret-key-that-is-at-least-256-bits-long-for-hs256
   expiration: 86400000
